@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classificação – Bolão Copa 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #006633;
+    --green-light: #00843D;
+    --yellow: #FFDF00;
+    --blue: #003399;
+    --white: #ffffff;
+    --gray-bg: #f5f5f0;
+    --gray-border: #ddd;
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--gray-bg);
+    color: #222;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 0;
+    background: #006633;
+  }
+
+  header img {
+    width: 100%;
+    display: block;
+    max-height: 320px;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .stripe {
+    height: 8px;
+    background: linear-gradient(90deg, var(--yellow) 33%, var(--green) 33%, var(--green) 66%, var(--blue) 66%);
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page-title {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .page-title h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+
+  .page-title p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 6px;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-card .valor {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  .ranking-card {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .ranking-header {
+    background: var(--green);
+    color: white;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    background: #f9f9f6;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-border);
+  }
+
+  thead th.center { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+
+  tbody tr.top1 { background: #fffbea; }
+  tbody tr.top2 { background: #fafafa; }
+  tbody tr.top3 { background: #fdf6f0; }
+
+  td {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  td.center { text-align: center; }
+
+  .pos {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    width: 40px;
+    text-align: center;
+  }
+
+  .pos-1 { color: var(--gold); }
+  .pos-2 { color: var(--silver); }
+  .pos-3 { color: var(--bronze); }
+  .pos-other { color: #ccc; }
+
+  .medalha { font-size: 1.3rem; }
+
+  .nome { font-weight: 600; }
+
+  .pontos {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--green);
+    text-align: center;
+  }
+
+  .acertos {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: #888;
+    font-size: 15px;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e0e0e0;
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .erro {
+    text-align: center;
+    padding: 2rem;
+    color: #c0392b;
+    font-size: 14px;
+  }
+
+  .atualizado {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 1rem;
+  }
+
+  .btn-atualizar {
+    display: inline-block;
+    margin: 1.5rem auto 0;
+    background: var(--green);
+    color: white;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-atualizar:hover { background: var(--green-light); }
+
+  .sem-dados {
+    text-align: center;
+    padding: 3rem;
+    color: #aaa;
+    font-size: 14px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 12px;
+    color: #999;
+    border-top: 1px solid var(--gray-border);
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    td, th { padding: 10px 10px; }
+    .acertos { display: none; }
+    thead th.hide-mobile { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="cabecalho-bolao.jpg" alt="Bolão Quico – 40 anos">
+</header>
+<div class="stripe"></div>
+
+<div class="container">
+
+  <div class="page-title">
+    <h1>🏆 Classificação Geral</h1>
+    <p>Atualizada automaticamente após cada rodada</p>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card">
+      <div class="valor" id="stat-apostadores">–</div>
+      <div class="label">Apostadores</div>
+    </div>
+    <div class="stat-card">
+      <div class="valor" id="stat-jogos">–</div>
+      <div class="label">Jogos apurados</div>
+    </div>
+    <div class="stat-card">
+      <div class="valor" id="stat-lider-pts">–</div>
+      <div class="label">Pontos do líder</div>
+    </div>
+  </div>
+
+  <div class="ranking-card">
+    <div class="ranking-header">⚽ Ranking – Copa do Mundo 2026</div>
+    <div id="tabela-wrap">
+      <div class="loading">
+        <div class="loading-spinner"></div><br>
+        Carregando classificação...
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center">
+    <button class="btn-atualizar" onclick="carregarClassificacao()">↻ Atualizar</button>
+  </div>
+
+  <p class="atualizado" id="atualizado-em"></p>
+
+</div>
+
+<footer>
+  Bolão Copa do Mundo 2026 – 11ª Edição &nbsp;·&nbsp; bolaoquico@gmail.com
+</footer>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyJ-8IKWWIlA3am40rTQhx2bvps-bzx8SNXCMPiGuSHyKSh9aYfHXp3owkwC4UW1uA5A/exec';
+
+async function carregarClassificacao() {
+  const wrap = document.getElementById('tabela-wrap');
+  wrap.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Carregando classificação...</div>';
+
+  try {
+    const res  = await fetch(SCRIPT_URL);
+    const data = await res.json();
+
+    const classificacao = data.classificacao || [];
+
+    // Atualiza stats
+    document.getElementById('stat-apostadores').textContent = classificacao.length;
+    document.getElementById('stat-jogos').textContent = `${data.jogosApurados}/${data.totalJogos}`;
+    document.getElementById('stat-lider-pts').textContent = classificacao.length > 0 ? classificacao[0].pontos : '–';
+
+    if (classificacao.length === 0) {
+      wrap.innerHTML = '<div class="sem-dados">Nenhum palpite registrado ainda.<br><br>Aguardando participantes! ⚽</div>';
+      return;
+    }
+
+    const medalhas = ['🥇', '🥈', '🥉'];
+
+    const linhas = classificacao.map((ap, i) => {
+      const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const posNumClass = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : 'pos-other';
+      const medalha = i < 3 ? `<span class="medalha">${medalhas[i]}</span>` : '';
+      return `<tr class="${posClass}">
+        <td class="pos ${posNumClass}">${ap.posicao}</td>
+        <td>${medalha}</td>
+        <td class="nome">${ap.nome}</td>
+        <td class="pontos">${ap.pontos}</td>
+        <td class="acertos">${ap.acertos} ⭐</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th class="center">#</th>
+            <th></th>
+            <th>Nome</th>
+            <th class="center">Pontos</th>
+            <th class="center hide-mobile">Placares Exatos</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>`;
+
+    // Timestamp
+    const dt = new Date(data.atualizadoEm);
+    document.getElementById('atualizado-em').textContent =
+      `Última atualização: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
+
+  } catch (err) {
+    wrap.innerHTML = `<div class="erro">Não foi possível carregar a classificação.<br><small>${err.message}</small></div>`;
+  }
+}
+
+// Carrega ao abrir a página
+carregarClassificacao();
+
+// Atualiza automaticamente a cada 5 minutos
+setInterval(carregarClassificacao, 5 * 60 * 1000);
+</script>
+
+</body>
+</html>

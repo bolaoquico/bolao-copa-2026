@@ -647,27 +647,46 @@
 </td></tr></table>
 </body></html>`;
 
+    // Monta objeto com palpites para o Sheets
+    const sheetsData = { nome, email, telefone };
+    groups.forEach(group => {
+      group.games.forEach(game => {
+        const h = document.getElementById('h' + game.n).value;
+        const a = document.getElementById('a' + game.n).value;
+        sheetsData['j' + game.n] = (h !== '' && a !== '') ? `${h}-${a}` : '';
+      });
+    });
+
+    // E-mail 2: texto compacto para o apostador
+    let linhas = [];
+    groups.forEach(g => {
+      linhas.push(`[ ${g.name} ]`);
+      g.games.forEach(game => {
+        const h = document.getElementById('h' + game.n).value || '-';
+        const a = document.getElementById('a' + game.n).value || '-';
+        linhas.push(`${game.n}. ${game.home} ${h} x ${a} ${game.away}`);
+      });
+      linhas.push('');
+    });
+    const palpitesTexto = linhas.join('\n');
+
     try {
-      // E-mail 1: para o organizador (via EmailJS com CSV)
+      // 1. Salva no Google Sheets
+      await fetch('https://script.google.com/macros/s/AKfycbxyJ-8IKWWIlA3am40rTQhx2bvps-bzx8SNXCMPiGuSHyKSh9aYfHXp3owkwC4UW1uA5A/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sheetsData)
+      });
+
+      // 2. E-mail para o organizador (EmailJS com CSV)
       await emailjs.send('service_c935owf', 'template_4tipj0j', {
         nome, email_apostador: email, telefone,
         palpites_csv: fullCSV,
         reply_to: email,
       });
 
-      // E-mail 2: confirmação para o apostador (texto compacto)
-      let linhas = [];
-      groups.forEach(g => {
-        linhas.push(`[ ${g.name} ]`);
-        g.games.forEach(game => {
-          const h = document.getElementById('h' + game.n).value || '-';
-          const a = document.getElementById('a' + game.n).value || '-';
-          linhas.push(`${game.n}. ${game.home} ${h} x ${a} ${game.away}`);
-        });
-        linhas.push('');
-      });
-      const palpitesTexto = linhas.join('\n');
-
+      // 3. Confirmação para o apostador (EmailJS texto)
       await emailjs.send('service_c935owf', 'template_x4ta11g', {
         nome,
         email: email,
@@ -678,7 +697,7 @@
       showStatus('✅ Palpites enviados! Você receberá um e-mail de confirmação. Boa sorte! 🏆');
       btn.textContent = 'Enviado ✓';
 
-      // Download CSV automático para o organizador também
+      // Download CSV automático
       downloadCSV(fullCSV, `bolao_${nome.replace(/\s+/g,'_')}.csv`);
 
     } catch (err) {
