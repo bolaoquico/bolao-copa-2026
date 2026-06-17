@@ -38,6 +38,12 @@
   td.center { text-align: center; }
   .pos { font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700; width: 40px; text-align: center; }
   .pos-1 { color: var(--gold); } .pos-2 { color: var(--silver); } .pos-3 { color: var(--bronze); } .pos-other { color: #ccc; }
+  .seta-col { text-align: center; width: 36px; }
+  .seta { font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 1px; }
+  .seta small { font-size: 9px; font-weight: 600; }
+  .seta-up { color: #27ae60; }
+  .seta-down { color: #e74c3c; }
+  .seta-eq { color: #ccc; font-size: 13px; }
   .nome-link { font-weight: 600; color: var(--green); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .nome-link:hover { color: var(--green-light); }
   .pontos { font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--green); text-align: center; }
@@ -185,8 +191,22 @@ async function carregarClassificacao() {
       const posClass    = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
       const posNumClass = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : 'pos-other';
       const medalha     = i < 3 ? `<span class="medalha">${medalhas[i]}</span>` : '';
+
+      // Seta de variação de posição
+      let seta = '';
+      if (ap.variacao !== null && ap.variacao !== undefined) {
+        if (ap.variacao > 0) {
+          seta = `<span class="seta seta-up" title="Subiu ${ap.variacao}">▲<small>${ap.variacao}</small></span>`;
+        } else if (ap.variacao < 0) {
+          seta = `<span class="seta seta-down" title="Caiu ${Math.abs(ap.variacao)}">▼<small>${Math.abs(ap.variacao)}</small></span>`;
+        } else {
+          seta = `<span class="seta seta-eq" title="Manteve">–</span>`;
+        }
+      }
+
       return `<tr class="${posClass}">
         <td class="pos ${posNumClass}">${ap.posicao}</td>
+        <td class="seta-col">${seta}</td>
         <td>${medalha}</td>
         <td><span class="nome-link" onclick="abrirModal('${encodeURIComponent(ap.email)}','${encodeURIComponent(ap.nome)}')">${ap.nome}</span></td>
         <td class="pontos">${ap.pontos}</td>
@@ -197,7 +217,7 @@ async function carregarClassificacao() {
     wrap.innerHTML = `
       <table>
         <thead><tr>
-          <th class="center">#</th><th></th><th>Nome</th>
+          <th class="center">#</th><th></th><th></th><th>Nome</th>
           <th class="center">Pontos</th><th class="center hide-mobile">Placares Exatos</th>
         </tr></thead>
         <tbody>${linhas}</tbody>
